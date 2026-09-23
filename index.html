@@ -5,34 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#101820">
     <meta name="description" content="為 FINAL FANTASY XIV 冒險截圖加上白色攝影資訊框，並以 PNG 保存。圖片只在你的裝置上處理。">
-    <title>冒險留影 | FINAL FANTASY XIV</title>
+    <title>截圖加框 | FINAL FANTASY XIV</title>
     <link rel="stylesheet" href="styles.css">
     <script src="app.js" defer></script>
   </head>
   <body>
     <div class="page-shell">
       <header class="site-header">
-        <a class="brand-lockup" href="#top" aria-label="冒險留影首頁">
+        <a class="brand-lockup" href="#top" aria-label="FINAL FANTASY XIV">
           <span class="crystal-mark" aria-hidden="true"><i></i><b></b></span>
-          <span class="brand-name">FRAME <span>OF EORZEA</span></span>
+          <span class="brand-name">FINAL FANTASY XIV</span>
         </a>
-        <a class="header-link" href="#how-it-works">使用方式 <span aria-hidden="true">↘</span></a>
+        <span class="header-note">圖片只在瀏覽器處理</span>
       </header>
 
       <main id="top">
         <section class="hero" aria-labelledby="page-title">
-          <p class="eyebrow"><span class="eyebrow-line"></span> MEMORIES, IN LIGHT</p>
-          <h1 id="page-title">把冒險，留在<span>影格裡。</span></h1>
-          <p class="hero-copy">為你的艾歐澤亞風景加上一道攝影底框。挑選截圖、填寫拍攝資訊，完成後即可保存分享。</p>
+          <h1 id="page-title">截圖加框</h1>
+          <p class="hero-copy">上傳截圖，填寫拍攝資訊與署名，下載加上白色資訊框的圖片。</p>
         </section>
 
         <section class="studio" aria-label="截圖資訊框編輯器">
           <div class="settings-column">
             <div class="section-heading">
-              <span class="section-index">01</span>
               <div>
-                <h2>準備你的影格</h2>
-                <p>選擇截圖，再填寫想留在底框上的資訊。</p>
+                <h2>圖片與資訊</h2>
+                <p>設定日期、曝光參數和署名。</p>
               </div>
             </div>
 
@@ -53,7 +51,7 @@
 
             <p class="privacy-note"><span aria-hidden="true">◈</span> 圖片只會在你的瀏覽器處理，不會上傳。</p>
 
-            <div class="form-divider"><span>影格資訊</span><span class="form-divider-line"></span></div>
+            <div class="form-divider"><span>拍攝資訊</span><span class="form-divider-line"></span></div>
 
             <div class="field-block date-block">
               <div class="field-title-row">
@@ -100,19 +98,17 @@
 
           <div class="preview-column">
             <div class="section-heading preview-heading">
-              <span class="section-index">02</span>
               <div>
-                <h2>預覽完成影格</h2>
-                <p id="preview-dimensions">選取圖片後，這裡會顯示即時預覽。</p>
+                <h2>預覽</h2>
+                <p id="preview-dimensions">選取圖片後顯示預覽。</p>
               </div>
-              <span class="live-indicator"><i></i> LIVE PREVIEW</span>
             </div>
 
             <div class="preview-stage" id="preview-stage">
               <div class="empty-preview" id="empty-preview">
                 <span class="empty-orbit" aria-hidden="true"><i></i><b></b></span>
-                <p>每一段旅程，都值得留存。</p>
-                <span>先選擇一張冒險截圖</span>
+                <p>尚未選擇圖片</p>
+                <span>選擇或拖曳圖片以預覽</span>
               </div>
               <canvas id="preview-canvas" hidden aria-label="加入白色資訊框後的圖片預覽"></canvas>
             </div>
@@ -123,15 +119,9 @@
           </div>
         </section>
 
-        <section class="how-it-works" id="how-it-works">
-          <span class="how-index">簡單三步</span>
-          <p><strong>選擇截圖</strong><span aria-hidden="true">→</span><strong>填寫拍攝資訊與署名</strong><span aria-hidden="true">→</span><strong>下載你的影格</strong></p>
-          <span class="offline-note">不需要帳號 · 不會上傳圖片</span>
-        </section>
       </main>
 
       <footer class="site-footer">
-        <span>FRAME OF EORZEA</span>
         <span>FINAL FANTASY XIV © SQUARE ENIX</span>
       </footer>
     </div>

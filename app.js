@@ -277,7 +277,7 @@
     const crystalSize = Math.round(Math.max(30, footerHeight * 0.29));
     drawCrystal(ctx, pad, footerTop + footerHeight * 0.29, crystalSize);
     const titleX = pad + crystalSize + Math.round(15 * scale);
-    const titleSize = Math.round(Math.max(18, Math.min(footerHeight * 0.22, width * 0.019)));
+    const titleSize = Math.round(Math.max(20, Math.min(footerHeight * 0.23, width * 0.022)));
     ctx.fillStyle = '#171a1b';
     ctx.textBaseline = 'alphabetic';
     ctx.textAlign = 'left';
@@ -286,7 +286,7 @@
 
     const capture = clean(fields.date.value) || 'DATE / TIME';
     ctx.fillStyle = capture === 'DATE / TIME' ? '#a3a6a5' : '#898e8e';
-    ctx.font = `400 ${Math.round(Math.max(13, footerHeight * 0.125))}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
+    ctx.font = `400 ${Math.round(Math.max(15, footerHeight * 0.145))}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
     ctx.fillText(capture, pad, subBaseline);
 
     const metrics = [
@@ -300,7 +300,7 @@
     const rightEnd = width - pad;
     const cellGap = Math.round(width * 0.012);
     const cellWidth = (rightEnd - rightX - cellGap * (metrics.length - 1)) / metrics.length;
-    const metricFont = Math.round(Math.max(19, Math.min(footerHeight * 0.205, cellWidth * 0.34)));
+    const metricFont = Math.round(Math.max(21, Math.min(footerHeight * 0.24, cellWidth * 0.37)));
     metrics.forEach((metric, index) => {
       const x = rightX + index * (cellWidth + cellGap);
       ctx.fillStyle = metric.value.includes('—') ? '#a2a6a5' : '#171a1b';
@@ -308,7 +308,7 @@
       ctx.font = `500 ${metricFont}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
       ctx.fillText(metric.value, x, mainBaseline);
       ctx.fillStyle = '#999e9d';
-      ctx.font = `500 ${Math.max(9, Math.round(footerHeight * 0.052))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      ctx.font = `500 ${Math.max(10, Math.round(footerHeight * 0.058))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
       ctx.fillText(metric.label, x, subBaseline);
     });
 
@@ -317,13 +317,13 @@
       const signY = footerTop + footerHeight * 0.91;
       ctx.fillStyle = '#777e7d';
       ctx.textAlign = 'right';
-      ctx.font = `400 ${Math.round(Math.max(10, footerHeight * 0.07))}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
+      ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.08))}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
       ctx.fillText(`— ${signature}`, width - pad, signY);
     }
 
     ctx.fillStyle = '#a4a8a7';
     ctx.textAlign = 'left';
-    ctx.font = `400 ${Math.round(Math.max(8, footerHeight * 0.05))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
+    ctx.font = `400 ${Math.round(Math.max(9, footerHeight * 0.055))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
     ctx.fillText('FINAL FANTASY XIV © SQUARE ENIX', pad, footerTop + footerHeight * 0.93);
   }
 
