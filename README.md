@@ -20,4 +20,4 @@ The website footer identifies this as an unofficial, non-commercial fan tool and
 
 ## GitHub Pages
 
-The site is published at https://ryan4559.github.io/ffxiv-photo-frame/ from the root of the `main` branch. The exported image includes the attribution `© SQUARE ENIX`.
+The site is published at https://ryan4559.github.io/ffxiv-ss-frame/ from the root of the `main` branch. The exported image includes the attribution `© SQUARE ENIX`.
