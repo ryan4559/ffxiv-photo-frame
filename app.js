@@ -317,6 +317,21 @@
     return lines;
   }
 
+  function fitPreview() {
+    if (!image) return;
+    const column = previewStage.parentElement;
+    const columnStyle = getComputedStyle(column);
+    const availableWidth = column.clientWidth - parseFloat(columnStyle.paddingLeft) - parseFloat(columnStyle.paddingRight) - 2;
+    const availableHeight = Math.min(920, Math.max(240, window.innerHeight - 160));
+    const displayWidth = Math.max(1, Math.floor(Math.min(
+      canvas.width,
+      availableWidth,
+      canvas.width * availableHeight / canvas.height,
+    )));
+    canvas.style.width = `${displayWidth}px`;
+    previewStage.style.width = `${displayWidth + 2}px`;
+  }
+
   function renderFrame() {
     if (!image || !ctx) return;
     const width = image.naturalWidth;
@@ -443,6 +458,7 @@
       ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.07))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
       ctx.fillText('© SQUARE ENIX', width - Math.max(2, Math.round(width * 0.002)), footerTop + footerHeight * 0.965, availableWidth);
     }
+    fitPreview();
   }
 
   function downloadFrame() {
@@ -479,6 +495,7 @@
   });
   byId('download-image').addEventListener('click', downloadFrame);
   showCopyright.addEventListener('change', renderFrame);
+  window.addEventListener('resize', fitPreview);
   Object.values(fields).forEach((field) => field.addEventListener('input', () => {
     if (field === fields.signatureSize) {
       updateSignatureSizeLabel();
