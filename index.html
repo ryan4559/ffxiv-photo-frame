@@ -4,33 +4,50 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#101820">
-    <meta name="description" content="為 FINAL FANTASY XIV 冒險截圖加上白色攝影資訊框，並以 PNG 保存。圖片只在你的裝置上處理。">
-    <title>截圖加框 | FINAL FANTASY XIV</title>
+    <meta name="description" content="為 FFXIV 截圖加上可自訂的白色資訊底框，預覽並下載 PNG。日期可讀取圖片資訊或手動填寫，圖片僅在瀏覽器中處理。">
+    <title>光之相紙｜FFXIV 截圖加框</title>
+    <link rel="icon" type="image/svg+xml" href="xiv-favicon.svg?v=3">
+    <script>try { if (localStorage.getItem('ffxiv-frame-theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (error) {}</script>
     <link rel="stylesheet" href="styles.css">
     <script src="app.js" defer></script>
   </head>
   <body>
     <div class="page-shell">
       <header class="site-header">
-        <a class="brand-lockup" href="#top" aria-label="FINAL FANTASY XIV">
-          <span class="crystal-mark" aria-hidden="true"><i></i><b></b></span>
-          <span class="brand-name">FINAL FANTASY XIV</span>
+        <a class="brand-lockup" href="#top">
+          <svg class="xiv-mark" id="xiv-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90" aria-hidden="true">
+            <g fill="#000">
+              <path d="M17.6 24h12.8l37 46H54.6z"/>
+              <path d="M54.6 24h12.8l-37 46H17.6z"/>
+              <path d="M76 19h10v56H76z" fill="#d01031"/>
+              <path d="M94.6 24h10.8l19.5 46h-10.8z"/>
+              <path d="M133.6 24h10.8l-19.5 46h-10.8z"/>
+            </g>
+          </svg>
+          <h1 class="brand-name">光之相紙</h1>
         </a>
-        <span class="header-note">圖片只在瀏覽器處理</span>
+        <div class="header-actions">
+          <a class="header-icon" href="https://github.com/ryan4559/ffxiv-photo-frame" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.69-.01-1.36-2.23.49-2.69-.95-2.69-.95-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.22.82 1.22.82.71 1.22 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.45.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+          </a>
+          <button class="header-icon theme-toggle" id="theme-toggle" type="button" aria-label="切換至淺色模式" title="切換至淺色模式">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.9 13.2A9 9 0 0 1 10.8 3.1 9 9 0 1 0 20.9 13.2Z"/></svg>
+          </button>
+        </div>
       </header>
 
       <main id="top">
-        <section class="hero" aria-labelledby="page-title">
-          <h1 id="page-title">截圖加框</h1>
-          <p class="hero-copy">上傳截圖，填寫拍攝資訊與署名，下載加上白色資訊框的圖片。</p>
-        </section>
+        <div class="hero">
+          <p class="hero-copy">為 FFXIV 截圖加上白色攝影資訊底框。填寫日期、光圈、快門、焦距與自訂文字，預覽後下載 PNG。</p>
+        </div>
 
         <section class="studio" aria-label="截圖資訊框編輯器">
           <div class="settings-column">
             <div class="section-heading">
               <div>
-                <h2>圖片與資訊</h2>
-                <p>設定日期、曝光參數和署名。</p>
+                <h2>圖片與設定</h2>
+                <p>選擇截圖，設定底框要顯示的內容。</p>
               </div>
             </div>
 
@@ -40,59 +57,77 @@
                 <svg viewBox="0 0 32 32" fill="none"><path d="M16 21V5m0 0 6.5 6.5M16 5 9.5 11.5M5 20v6.5h22V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <span class="drop-title">拖曳截圖到這裡，或<span>選擇圖片</span></span>
-              <span class="drop-hint">支援 PNG、JPG、WebP</span>
+              <span class="drop-hint">支援 PNG、JPG／JPEG、WebP</span>
             </label>
 
             <div class="file-summary" id="file-summary" hidden>
-              <span class="file-type" aria-hidden="true">IMG</span>
+              <span class="file-type" aria-hidden="true">圖片</span>
               <span class="file-details"><strong id="file-name">截圖</strong><small id="file-size">—</small></span>
-              <button class="text-button" id="replace-image" type="button">更換</button>
+              <button class="text-button" id="replace-image" type="button">更換圖片</button>
             </div>
 
-            <p class="privacy-note"><span aria-hidden="true">◈</span> 圖片只會在你的瀏覽器處理，不會上傳。</p>
+            <p class="privacy-note"><span aria-hidden="true">◈</span> 圖片只在瀏覽器中處理，不會上傳。</p>
 
-            <div class="form-divider"><span>拍攝資訊</span><span class="form-divider-line"></span></div>
+            <div class="form-divider"><span>底框資訊</span><span class="form-divider-line"></span></div>
 
             <div class="field-block date-block">
               <div class="field-title-row">
                 <label for="capture-time">日期與時間</label>
-                <button class="small-button" id="use-file-date" type="button" disabled>使用檔案日期</button>
+                <button class="small-button" id="use-file-date" type="button" disabled>帶入檔案修改時間</button>
               </div>
               <input class="text-input" id="capture-time" type="text" inputmode="text" placeholder="YYYY.MM.DD HH:mm:ss" autocomplete="off">
-              <p class="field-hint" id="date-hint" aria-live="polite">若圖片含有 EXIF 拍攝日期，選取後會自動帶入。</p>
+              <p class="field-hint" id="date-hint" aria-live="polite">優先讀取圖片中的日期資訊；讀不到時，帶入檔案最後修改時間。</p>
             </div>
 
             <div class="field-grid">
               <div class="field-block">
-                <label for="aperture">光圈</label>
+                <div class="field-title-row">
+                  <label for="aperture">光圈</label>
+                  <button class="small-button" type="button" data-default-field="aperture" aria-label="將光圈設為 f/2.8">使用預設</button>
+                </div>
                 <div class="input-with-unit"><span aria-hidden="true">f/</span><input id="aperture" type="text" inputmode="decimal" placeholder="2.8" autocomplete="off"></div>
               </div>
               <div class="field-block">
-                <label for="shutter">快門</label>
+                <div class="field-title-row">
+                  <label for="shutter">快門 <span class="optional-label">選填</span></label>
+                  <button class="small-button" type="button" data-default-field="shutter" aria-label="將快門設為 1/150 秒">使用預設</button>
+                </div>
                 <div class="input-with-unit"><input id="shutter" type="text" inputmode="text" placeholder="1/150" autocomplete="off"><span aria-hidden="true">s</span></div>
               </div>
               <div class="field-block">
-                <label for="focal-length">焦距</label>
+                <div class="field-title-row">
+                  <label for="focal-length">焦距</label>
+                  <button class="small-button" type="button" data-default-field="focal" aria-label="將焦距設為 77 mm">使用預設</button>
+                </div>
                 <div class="input-with-unit"><input id="focal-length" type="text" inputmode="decimal" placeholder="77" autocomplete="off"><span aria-hidden="true">mm</span></div>
               </div>
               <div class="field-block">
-                <label for="iso">ISO <span class="optional-label">選填</span></label>
+                <div class="field-title-row">
+                  <label for="iso">ISO <span class="optional-label">選填</span></label>
+                  <button class="small-button" type="button" data-default-field="iso" aria-label="將 ISO 設為 640">使用預設</button>
+                </div>
                 <div class="input-with-unit"><input id="iso" type="text" inputmode="numeric" placeholder="640" autocomplete="off"><span aria-hidden="true">ISO</span></div>
               </div>
             </div>
 
             <div class="field-block signature-block">
-              <label for="signature">署名</label>
-              <input class="text-input" id="signature" type="text" maxlength="48" placeholder="留下你的名字或角色名" autocomplete="off">
-              <p class="field-hint">署名會顯示在白色底框右下方。</p>
+              <label for="signature">自訂文字</label>
+              <input class="text-input" id="signature" type="text" maxlength="48" placeholder="輸入名字、角色名或想顯示的文字" autocomplete="off">
+              <div class="signature-size-row">
+                <label for="signature-size">自訂文字大小</label>
+                <output id="signature-size-value" for="signature-size">100%</output>
+              </div>
+              <input class="signature-size-slider" id="signature-size" type="range" min="60" max="160" step="5" value="100">
+              <span class="signature-size-ticks" aria-hidden="true"></span>
+              <p class="field-hint">顯示在底框右側、拍攝參數下方；文字過長時會自動縮小。</p>
             </div>
 
             <div class="save-row">
               <button class="save-button" id="download-image" type="button" disabled>
-                <span>下載完成影格</span>
+                <span>下載圖片</span>
                 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.75v9.5m0 0 3.75-3.75M10 12.25 6.25 8.5M3.5 13.5v3h13v-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
-              <p class="export-note" id="export-note" aria-live="polite">輸出為 PNG，保留截圖原始尺寸。</p>
+              <p class="export-note" id="export-note" aria-live="polite">沿用原圖寬度，在底部加上白色底框並輸出 PNG。</p>
             </div>
           </div>
 
@@ -100,7 +135,6 @@
             <div class="section-heading preview-heading">
               <div>
                 <h2>預覽</h2>
-                <p id="preview-dimensions">選取圖片後顯示預覽。</p>
               </div>
             </div>
 
@@ -108,24 +142,21 @@
               <div class="empty-preview" id="empty-preview">
                 <span class="empty-orbit" aria-hidden="true"><i></i><b></b></span>
                 <p>尚未選擇圖片</p>
-                <span>選擇或拖曳圖片以預覽</span>
+                <span>加框後的圖片會顯示在這裡</span>
               </div>
-              <canvas id="preview-canvas" hidden aria-label="加入白色資訊框後的圖片預覽"></canvas>
-            </div>
-            <div class="preview-caption">
-              <span><i class="caption-dot"></i> 圖片預覽</span>
-              <span id="preview-file-caption">等待選取圖片</span>
+              <canvas id="preview-canvas" hidden aria-label="加上白色底框的圖片預覽"></canvas>
             </div>
           </div>
         </section>
 
       </main>
 
-      <footer class="site-footer">
-        <span>FINAL FANTASY XIV © SQUARE ENIX</span>
+      <footer class="site-footer" aria-label="FFXIV 素材使用資訊">
+        <p>這是玩家製作的非官方、非營利工具，未獲 SQUARE ENIX 認可或贊助。分享 FINAL FANTASY XIV 截圖或加框圖片前，請依適用地區的官方素材使用規範，確認用途、修改方式與權利標示；規範如有更新，以官方原文為準。</p>
+        <p class="site-copyright">© SQUARE ENIX</p>
       </footer>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <noscript><p class="noscript">請開啟 JavaScript，才能編輯與下載影格。</p></noscript>
+    <noscript><p class="noscript">請啟用 JavaScript，才能預覽與下載圖片。</p></noscript>
   </body>
 </html>

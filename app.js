@@ -2,8 +2,10 @@
   'use strict';
 
   const byId = (id) => document.getElementById(id);
+  const themeToggle = byId('theme-toggle');
   const fileInput = byId('image-file');
   const dropzone = byId('dropzone');
+  const previewStage = byId('preview-stage');
   const canvas = byId('preview-canvas');
   const ctx = canvas.getContext('2d', { alpha: false });
   const fields = {
@@ -13,15 +15,53 @@
     focal: byId('focal-length'),
     iso: byId('iso'),
     signature: byId('signature'),
+    signatureSize: byId('signature-size'),
   };
 
   let image = null;
   let imageUrl = '';
   let selectedFile = null;
   let toastTimer = 0;
+  let loadToken = 0;
+  let dateEditVersion = 0;
+  const xivMark = new Image();
+  xivMark.onload = () => renderFrame();
+  xivMark.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(byId('xiv-mark')))}`;
+
+  const exposureDefaults = { aperture: '2.8', shutter: '1/150', focal: '77', iso: '640' };
+
+  function setTheme(theme, persist = false) {
+    document.documentElement.dataset.theme = theme;
+    const label = theme === 'light' ? '切換至深色模式' : '切換至淺色模式';
+    themeToggle.setAttribute('aria-label', label);
+    themeToggle.title = label;
+    document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f3f6f5' : '#101820';
+    if (persist) {
+      try { localStorage.setItem('ffxiv-frame-theme', theme); } catch (error) { /* Theme still works for this visit. */ }
+    }
+  }
+
+  setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+  themeToggle.addEventListener('click', () => {
+    setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light', true);
+  });
 
   function clean(value) {
     return value.trim().replace(/\s+/g, ' ');
+  }
+
+  function frameMeasurements(photo) {
+    const width = photo.naturalWidth;
+    const portrait = photo.naturalHeight > width;
+    const footerHeight = Math.max(132, Math.round(portrait ? photo.naturalHeight * 0.109 : width * 0.118));
+    const dateSize = Math.round(Math.max(15, portrait ? Math.min(footerHeight * 0.145, width * 0.024) : footerHeight * 0.145));
+    return { portrait, footerHeight, dateSize };
+  }
+
+  function updateSignatureSizeLabel() {
+    const size = fields.signatureSize.value;
+    byId('signature-size-value').textContent = `${size}%`;
+    fields.signatureSize.setAttribute('aria-valuetext', `${size} 百分比`);
   }
 
   function showToast(message) {
@@ -41,20 +81,43 @@
     byId('date-hint').textContent = message;
   }
 
+  function formatFileDate(file) {
+    const date = new Date(file.lastModified);
+    if (Number.isNaN(date.getTime())) return '';
+    const pad = (number) => String(number).padStart(2, '0');
+    return `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  }
+
+  function useFileDate(file, automatic = false) {
+    const date = formatFileDate(file);
+    if (!date) {
+      setDateHint('無法取得檔案修改時間，請自行填寫日期與時間。');
+      return;
+    }
+    fields.date.value = date;
+    setDateHint(automatic
+      ? '圖片中沒有可用的日期資訊，已帶入檔案最後修改時間；可自行修改。'
+      : '已帶入檔案最後修改時間，請確認是否與拍攝時間相符。');
+    renderFrame();
+  }
+
   function setFileDate() {
     if (!selectedFile) return;
-    const date = new Date(selectedFile.lastModified);
-    const pad = (number) => String(number).padStart(2, '0');
-    fields.date.value = `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-    setDateHint('已填入檔案的最後修改時間；它不一定是遊戲截圖的拍攝時間。');
-    renderFrame();
+    dateEditVersion += 1;
+    useFileDate(selectedFile);
   }
 
   function displayDate(raw) {
     if (!raw) return '';
-    const match = raw.match(/^(\d{4})[:.-](\d{2})[:.-](\d{2})[ T](\d{2}:\d{2}:\d{2})/);
-    if (match) return `${match[1]}.${match[2]}.${match[3]} ${match[4]}`;
-    return raw.trim();
+    const match = raw.match(/^(\d{4})[:.-](\d{2})[:.-](\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+    if (!match) return '';
+    const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+    const date = new Date(0);
+    date.setUTCFullYear(year, month - 1, day);
+    date.setUTCHours(hour, minute, second, 0);
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day
+      || date.getUTCHours() !== hour || date.getUTCMinutes() !== minute || date.getUTCSeconds() !== second) return '';
+    return `${match[1]}.${match[2]}.${match[3]} ${match[4]}:${match[5]}:${match[6]}`;
   }
 
   function readTiffDate(view, start, length) {
@@ -174,90 +237,99 @@
   }
 
   function loadImage(file) {
-    if (!file || !/^image\/(png|jpeg|webp)$/.test(file.type)) {
-      showToast('請選擇 PNG、JPG 或 WebP 圖片。');
+    if (!file || !(/^image\/(png|jpeg|webp)$/.test(file.type) || (!file.type && /\.(png|jpe?g|webp)$/i.test(file.name)))) {
+      fileInput.value = '';
+      showToast('請選擇 PNG、JPG／JPEG 或 WebP 圖片。');
       return;
     }
 
-    if (imageUrl) URL.revokeObjectURL(imageUrl);
-    selectedFile = file;
-    imageUrl = URL.createObjectURL(file);
+    const token = ++loadToken;
+    const dateVersionAtSelection = dateEditVersion;
+    const nextUrl = URL.createObjectURL(file);
     const nextImage = new Image();
     nextImage.onload = () => {
+      if (token !== loadToken) {
+        URL.revokeObjectURL(nextUrl);
+        return;
+      }
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+      imageUrl = nextUrl;
       image = nextImage;
+      selectedFile = file;
+      fileInput.value = '';
+      dropzone.hidden = true;
       byId('empty-preview').hidden = true;
       canvas.hidden = false;
+      previewStage.classList.add('has-image');
       byId('file-summary').hidden = false;
       byId('file-name').textContent = file.name;
       byId('file-size').textContent = `${image.naturalWidth} × ${image.naturalHeight} · ${fileSize(file.size)}`;
-      byId('preview-dimensions').textContent = `${image.naturalWidth.toLocaleString()} × ${image.naturalHeight.toLocaleString()} px`;
-      byId('preview-file-caption').textContent = file.name;
       byId('download-image').disabled = false;
       byId('use-file-date').disabled = false;
       renderFrame();
-      readFileDate(file);
+      readFileDate(file, token, dateVersionAtSelection);
     };
     nextImage.onerror = () => {
-      showToast('無法讀取這張圖片，請換一個檔案再試。');
-      URL.revokeObjectURL(imageUrl);
-      imageUrl = '';
-      selectedFile = null;
+      URL.revokeObjectURL(nextUrl);
+      if (token !== loadToken) return;
+      fileInput.value = '';
+      showToast('無法開啟這張圖片，請選擇另一個檔案。');
     };
-    nextImage.src = imageUrl;
+    nextImage.src = nextUrl;
   }
 
-  async function readFileDate(file) {
+  async function readFileDate(file, token, dateVersionAtSelection) {
+    if (dateVersionAtSelection !== dateEditVersion) return;
+    const editVersion = dateEditVersion;
     fields.date.value = '';
-    setDateHint('正在讀取圖片內的拍攝日期…');
+    setDateHint('正在讀取圖片中的日期資訊…');
+    renderFrame();
     try {
       const date = displayDate(parseExifDate(await file.arrayBuffer()));
+      if (token !== loadToken || editVersion !== dateEditVersion) return;
       if (date) {
         fields.date.value = date;
-        setDateHint('已從圖片的 EXIF 資訊讀取拍攝日期，可直接修改。');
+        setDateHint('已讀取圖片中的日期資訊；可自行修改。');
       } else {
-        setDateHint('圖片內沒有可讀取的拍攝日期；你可以手動輸入，或使用檔案日期。');
+        useFileDate(file, true);
       }
     } catch (error) {
-      setDateHint('無法讀取圖片日期；你可以手動輸入，或使用檔案日期。');
+      if (token !== loadToken || editVersion !== dateEditVersion) return;
+      useFileDate(file, true);
     }
     renderFrame();
   }
 
-  function drawCrystal(context, x, y, size) {
-    context.save();
-    context.translate(x, y);
-    context.strokeStyle = '#243946';
-    context.lineWidth = Math.max(1.4, size * 0.035);
-    context.beginPath();
-    context.moveTo(size * 0.5, 0);
-    context.lineTo(size, size * 0.43);
-    context.lineTo(size * 0.5, size);
-    context.lineTo(0, size * 0.43);
-    context.closePath();
-    context.stroke();
-    context.beginPath();
-    context.moveTo(size * 0.5, size * 0.18);
-    context.lineTo(size * 0.5, size * 0.79);
-    context.moveTo(size * 0.22, size * 0.43);
-    context.lineTo(size * 0.78, size * 0.43);
-    context.strokeStyle = '#a44045';
-    context.stroke();
-    context.restore();
+  function wrapCanvasText(context, value, maxWidth) {
+    const lines = [];
+    let line = '';
+    for (const character of Array.from(value)) {
+      const next = line + character;
+      if (line && context.measureText(next).width > maxWidth) {
+        lines.push(line.trim());
+        line = character.trimStart();
+      } else {
+        line = next;
+      }
+    }
+    if (line) lines.push(line.trim());
+    return lines;
   }
 
   function renderFrame() {
     if (!image || !ctx) return;
     const width = image.naturalWidth;
     const photoHeight = image.naturalHeight;
-    const footerHeight = Math.max(132, Math.round(width * 0.118));
+    const { portrait, footerHeight, dateSize } = frameMeasurements(image);
     const scale = width / 1800;
     const pad = Math.round(width * 0.036);
     const footerTop = photoHeight;
     const footerBottom = photoHeight + footerHeight;
-    const dividerX = Math.round(width * 0.665);
+    const dividerX = Math.round(width * (portrait ? 0.555 : 0.69));
     const topLine = footerTop + footerHeight * 0.24;
-    const mainBaseline = footerTop + footerHeight * 0.51;
-    const subBaseline = footerTop + footerHeight * 0.76;
+    const dividerBottom = footerTop + footerHeight * 0.84;
+    const mainBaseline = footerTop + footerHeight * (portrait ? 0.47 : 0.51);
+    const subBaseline = footerTop + footerHeight * (portrait ? 0.73 : 0.76);
 
     canvas.width = width;
     canvas.height = footerBottom;
@@ -270,61 +342,104 @@
     ctx.beginPath();
     ctx.moveTo(0, footerTop + 0.5);
     ctx.lineTo(width, footerTop + 0.5);
-    ctx.moveTo(dividerX, topLine);
-    ctx.lineTo(dividerX, footerTop + footerHeight * 0.84);
     ctx.stroke();
 
-    const crystalSize = Math.round(Math.max(30, footerHeight * 0.29));
-    drawCrystal(ctx, pad, footerTop + footerHeight * 0.29, crystalSize);
-    const titleX = pad + crystalSize + Math.round(15 * scale);
-    const titleSize = Math.round(Math.max(20, Math.min(footerHeight * 0.23, width * 0.022)));
+    ctx.strokeStyle = '#b6b6b6';
+    ctx.lineWidth = Math.max(2, scale * 2.4);
+    ctx.beginPath();
+    ctx.moveTo(dividerX, topLine);
+    ctx.lineTo(dividerX, dividerBottom);
+    ctx.stroke();
+
+    const markHeight = Math.round(Math.max(32, footerHeight * 0.38));
+    const markWidth = Math.round(markHeight * 160 / 90);
+    const titleSize = Math.round(Math.max(20, Math.min(footerHeight * 0.23, width * (portrait ? 0.03 : 0.022))));
+    const logoX = dividerX - Math.round(width * (portrait ? 0.02 : 0.014)) - markWidth;
+    if (xivMark.complete && xivMark.naturalWidth) {
+      // The drawn XIV paths span y=19..75 in the SVG's 90-unit viewBox.
+      const logoY = (topLine + dividerBottom) / 2 - markHeight * (47 / 90);
+      ctx.drawImage(xivMark, logoX, logoY, markWidth, markHeight);
+    }
+    const titleX = pad;
     ctx.fillStyle = '#171a1b';
     ctx.textBaseline = 'alphabetic';
     ctx.textAlign = 'left';
     ctx.font = `700 ${titleSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
-    ctx.fillText('FINAL FANTASY XIV', titleX, mainBaseline);
+    ctx.fillText('FINAL FANTASY XIV', titleX, mainBaseline, logoX - titleX - Math.round(width * 0.02));
 
-    const capture = clean(fields.date.value) || 'DATE / TIME';
-    ctx.fillStyle = capture === 'DATE / TIME' ? '#a3a6a5' : '#898e8e';
-    ctx.font = `400 ${Math.round(Math.max(15, footerHeight * 0.145))}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
-    ctx.fillText(capture, pad, subBaseline);
+    const capture = clean(fields.date.value);
+    ctx.fillStyle = capture ? '#898e8e' : '#a3a6a5';
+    ctx.font = `400 ${dateSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
+    ctx.fillText(capture || '—', pad, subBaseline, dividerX - pad * 2);
 
+    const focal = clean(fields.focal.value).replace(/\s*mm$/i, '');
     const metrics = [
-      { value: clean(fields.focal.value) ? `${clean(fields.focal.value)} mm` : '— mm', label: 'FOCAL LENGTH' },
-      { value: clean(fields.aperture.value) ? `f/${clean(fields.aperture.value).replace(/^f\//i, '')}` : 'f/—', label: 'APERTURE' },
-      { value: clean(fields.shutter.value) ? clean(fields.shutter.value).replace(/s$/i, '') : '—', label: 'SHUTTER' },
+      focal ? `${focal}mm` : '—mm',
+      clean(fields.aperture.value) ? `f/${clean(fields.aperture.value).replace(/^f\//i, '')}` : 'f/—',
     ];
-    if (clean(fields.iso.value)) metrics.push({ value: `ISO ${clean(fields.iso.value).replace(/^iso\s*/i, '')}`, label: 'SENSITIVITY' });
+    if (clean(fields.shutter.value)) metrics.push(clean(fields.shutter.value).replace(/s$/i, ''));
+    if (clean(fields.iso.value)) metrics.push(`ISO ${clean(fields.iso.value).replace(/^iso\s*/i, '')}`);
 
-    const rightX = dividerX + Math.round(width * 0.025);
+    const rightX = dividerX + Math.round(width * (portrait ? 0.018 : 0.025));
     const rightEnd = width - pad;
-    const cellGap = Math.round(width * 0.012);
-    const cellWidth = (rightEnd - rightX - cellGap * (metrics.length - 1)) / metrics.length;
-    const metricFont = Math.round(Math.max(21, Math.min(footerHeight * 0.24, cellWidth * 0.37)));
+    const availableWidth = rightEnd - rightX;
+    const minGap = Math.max(8, Math.round(width * 0.012));
+    const valueFont = (size) => `500 ${size}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
+    const metricWidths = (size) => {
+      ctx.font = valueFont(size);
+      return metrics.map((metric) => ctx.measureText(metric).width);
+    };
+    let metricFont = Math.round(Math.max(21, Math.min(footerHeight * 0.24, width * (portrait ? 0.032 : 0.03))));
+    let widths = metricWidths(metricFont);
+    const totalWidth = () => widths.reduce((sum, value) => sum + value, 0) + minGap * (metrics.length - 1);
+    while (metricFont > 12 && totalWidth() > availableWidth) {
+      metricFont -= 1;
+      widths = metricWidths(metricFont);
+    }
+    const constrained = totalWidth() > availableWidth;
+    if (constrained) widths = metrics.map(() => (availableWidth - minGap * (metrics.length - 1)) / metrics.length);
+    const gap = constrained ? minGap : Math.min(
+      (availableWidth - widths.reduce((sum, value) => sum + value, 0)) / (metrics.length - 1),
+      width * 0.03,
+    );
+    let metricX = rightX;
     metrics.forEach((metric, index) => {
-      const x = rightX + index * (cellWidth + cellGap);
-      ctx.fillStyle = metric.value.includes('—') ? '#a2a6a5' : '#171a1b';
+      ctx.fillStyle = metric.includes('—') ? '#a2a6a5' : '#171a1b';
       ctx.textAlign = 'left';
-      ctx.font = `500 ${metricFont}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
-      ctx.fillText(metric.value, x, mainBaseline);
-      ctx.fillStyle = '#999e9d';
-      ctx.font = `500 ${Math.max(10, Math.round(footerHeight * 0.058))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
-      ctx.fillText(metric.label, x, subBaseline);
+      ctx.font = valueFont(metricFont);
+      ctx.fillText(metric, metricX, mainBaseline, widths[index]);
+      metricX += widths[index] + gap;
     });
 
     const signature = clean(fields.signature.value);
     if (signature) {
-      const signY = footerTop + footerHeight * 0.91;
-      ctx.fillStyle = '#777e7d';
-      ctx.textAlign = 'right';
-      ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.08))}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
-      ctx.fillText(`— ${signature}`, width - pad, signY);
+      let signatureSize = Math.round(dateSize * Number(fields.signatureSize.value) / 100);
+      let signatureLines = [];
+      const signatureFont = (size) => `400 ${size}px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif`;
+      const minimumSize = Math.round(Math.max(12, footerHeight * 0.08));
+      do {
+        ctx.font = signatureFont(signatureSize);
+        signatureLines = wrapCanvasText(ctx, signature, availableWidth);
+        const heightLimit = signatureLines.length >= 3
+          ? Math.round(footerHeight * 0.105)
+          : signatureLines.length === 2 ? Math.round(footerHeight * 0.15) : signatureSize;
+        if (signatureLines.length <= 3 && signatureSize <= heightLimit) break;
+        if (signatureSize <= minimumSize) break;
+        signatureSize = Math.max(minimumSize, Math.min(signatureSize - 1, heightLimit));
+      } while (true);
+      if (signatureLines.length > 3) signatureLines = [signatureLines[0], signatureLines[1], signatureLines.slice(2).join(' ')];
+      ctx.font = signatureFont(signatureSize);
+      const firstBaseline = signatureLines.length === 1 ? subBaseline : footerTop + footerHeight * (signatureLines.length === 2 ? 0.66 : 0.63);
+      const lineStep = footerHeight * (signatureLines.length === 2 ? 0.15 : 0.11);
+      ctx.fillStyle = '#898e8e';
+      ctx.textAlign = 'left';
+      signatureLines.forEach((line, index) => ctx.fillText(line, rightX, firstBaseline + index * lineStep, availableWidth));
     }
 
-    ctx.fillStyle = '#a4a8a7';
-    ctx.textAlign = 'left';
-    ctx.font = `400 ${Math.round(Math.max(9, footerHeight * 0.055))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
-    ctx.fillText('FINAL FANTASY XIV © SQUARE ENIX', pad, footerTop + footerHeight * 0.93);
+    ctx.fillStyle = '#8e9392';
+    ctx.textAlign = 'right';
+    ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.07))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
+    ctx.fillText('© SQUARE ENIX', width - Math.max(2, Math.round(width * 0.002)), footerTop + footerHeight * 0.965, availableWidth);
   }
 
   function downloadFrame() {
@@ -332,7 +447,7 @@
     renderFrame();
     canvas.toBlob((blob) => {
       if (!blob) {
-        showToast('無法輸出圖片，請重新選取較小的截圖再試。');
+        showToast('無法產生 PNG，請改用較小的圖片再試。');
         return;
       }
       const url = URL.createObjectURL(blob);
@@ -344,16 +459,36 @@
       anchor.click();
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1500);
-      byId('export-note').textContent = `已輸出 ${canvas.width.toLocaleString()} × ${canvas.height.toLocaleString()} px PNG。`;
-      showToast('影格已準備好，開始下載 PNG。');
+      byId('export-note').textContent = `已產生 ${canvas.width.toLocaleString()} × ${canvas.height.toLocaleString()} px 的 PNG。`;
+      showToast('已開始下載圖片。');
     }, 'image/png');
   }
 
   fileInput.addEventListener('change', () => loadImage(fileInput.files?.[0]));
   byId('replace-image').addEventListener('click', () => fileInput.click());
   byId('use-file-date').addEventListener('click', setFileDate);
+  document.querySelectorAll('[data-default-field]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const key = button.dataset.defaultField;
+      fields[key].value = exposureDefaults[key];
+      renderFrame();
+    });
+  });
   byId('download-image').addEventListener('click', downloadFrame);
-  Object.values(fields).forEach((field) => field.addEventListener('input', renderFrame));
+  Object.values(fields).forEach((field) => field.addEventListener('input', () => {
+    if (field === fields.signatureSize) {
+      updateSignatureSizeLabel();
+    }
+    if (field === fields.date) {
+      dateEditVersion += 1;
+      setDateHint(field.value.trim()
+        ? '將顯示你填寫的日期與時間。'
+        : selectedFile
+          ? '日期與時間尚未填寫；可自行輸入，或帶入檔案修改時間。'
+          : '日期與時間尚未填寫；選擇圖片後可自動帶入。');
+    }
+    renderFrame();
+  }));
 
   for (const eventName of ['dragenter', 'dragover']) {
     dropzone.addEventListener(eventName, (event) => {
@@ -369,4 +504,5 @@
   }
   dropzone.addEventListener('drop', (event) => loadImage(event.dataTransfer?.files?.[0]));
   byId('use-file-date').disabled = true;
+  updateSignatureSizeLabel();
 })();
