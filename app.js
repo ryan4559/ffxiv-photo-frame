@@ -324,19 +324,33 @@
   function fitPreview() {
     if (!image) return;
     const column = previewStage.parentElement;
+    const studio = column.parentElement;
     const columnStyle = getComputedStyle(column);
-    const availableWidth = Math.max(1, Math.floor(column.clientWidth - parseFloat(columnStyle.paddingLeft) - parseFloat(columnStyle.paddingRight) - 2));
+    const padding = parseFloat(columnStyle.paddingLeft) + parseFloat(columnStyle.paddingRight);
+    const stacked = window.matchMedia('(max-width: 980px)').matches;
+    const regularColumnWidth = stacked
+      ? studio.clientWidth
+      : studio.clientWidth - studio.querySelector('.settings-column').getBoundingClientRect().width - parseFloat(getComputedStyle(studio).columnGap);
+    const regularWidth = Math.max(1, Math.floor(regularColumnWidth - padding - 4));
+    const fullWidth = Math.max(1, Math.floor(studio.clientWidth - padding - 4));
     const availableHeight = Math.min(920, Math.max(240, window.innerHeight - 160));
     const fittedWidth = Math.max(1, Math.floor(Math.min(
       canvas.width,
-      availableWidth,
+      regularWidth,
       canvas.width * availableHeight / canvas.height,
     )));
-    const displayWidth = Math.max(1, Math.round(fittedWidth * Number(previewZoom.value) / 100));
-    const displayHeight = Math.ceil(canvas.height * displayWidth / canvas.width);
+    const maxZoom = Math.max(100, Math.min(200, Math.floor(fullWidth / fittedWidth * 10) * 10));
+    previewZoom.max = String(maxZoom);
+    if (Number(previewZoom.value) > maxZoom) previewZoom.value = String(maxZoom);
+    const zoom = Number(previewZoom.value);
+    byId('preview-zoom-value').textContent = `${zoom}%`;
+    const requestedWidth = Math.max(1, Math.round(fittedWidth * zoom / 100));
+    studio.classList.toggle('preview-expanded', !stacked && requestedWidth > regularWidth);
+    const availableWidth = Math.max(1, Math.floor(column.clientWidth - padding - 2));
+    const displayWidth = Math.min(requestedWidth, availableWidth);
     canvas.style.width = `${displayWidth}px`;
-    previewStage.style.width = `${Math.min(availableWidth, displayWidth) + 2}px`;
-    previewStage.style.height = `${Math.min(availableHeight, displayHeight) + 2}px`;
+    previewStage.style.width = `${displayWidth + 2}px`;
+    previewStage.style.height = '';
   }
 
   function renderFrame() {
@@ -503,10 +517,7 @@
   byId('download-image').addEventListener('click', downloadFrame);
   showCopyright.addEventListener('change', renderFrame);
   previewZoom.addEventListener('input', () => {
-    byId('preview-zoom-value').textContent = `${previewZoom.value}%`;
     fitPreview();
-    previewStage.scrollLeft = (previewStage.scrollWidth - previewStage.clientWidth) / 2;
-    previewStage.scrollTop = (previewStage.scrollHeight - previewStage.clientHeight) / 2;
   });
   window.addEventListener('resize', fitPreview);
   Object.values(fields).forEach((field) => field.addEventListener('input', () => {
