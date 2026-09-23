@@ -113,6 +113,9 @@ h2, p { margin-top: 0; }
 .signature-size-row output { color: var(--muted); font-family: var(--mono); font-size: 13px; }
 .signature-size-slider { display: block; width: 100%; margin: 9px 0 2px; accent-color: var(--mint); cursor: pointer; }
 .signature-size-ticks { display: block; height: 5px; margin: 0 8px 9px; border-right: 1px solid var(--muted); background: repeating-linear-gradient(to right, var(--muted) 0 1px, transparent 1px 5%); opacity: .65; }
+.copyright-toggle { display: flex; align-items: center; gap: 9px; margin-top: 18px; color: var(--text); cursor: pointer; font-size: 14px; }
+.copyright-toggle input { width: 17px; height: 17px; flex: none; margin: 0; accent-color: var(--mint); cursor: pointer; }
+.copyright-hint { margin-left: 26px; }
 .save-row { display: flex; align-items: center; gap: 15px; margin-top: 23px; }
 .save-button { display: inline-flex; flex-shrink: 0; min-height: 50px; align-items: center; justify-content: center; gap: 14px; padding: 0 19px; border: 1px solid #c5e1d7; border-radius: 6px; background: var(--mint); color: #13221f; cursor: pointer; font-size: 14px; font-weight: 700; white-space: nowrap; transition: background .2s ease, transform .2s ease, opacity .2s ease; }
 .save-button svg { width: 18px; height: 18px; flex: none; }

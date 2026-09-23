@@ -6,6 +6,7 @@
   const fileInput = byId('image-file');
   const dropzone = byId('dropzone');
   const previewStage = byId('preview-stage');
+  const showCopyright = byId('show-copyright');
   const canvas = byId('preview-canvas');
   const ctx = canvas.getContext('2d', { alpha: false });
   const fields = {
@@ -436,10 +437,12 @@
       signatureLines.forEach((line, index) => ctx.fillText(line, rightX, firstBaseline + index * lineStep, availableWidth));
     }
 
-    ctx.fillStyle = '#8e9392';
-    ctx.textAlign = 'right';
-    ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.07))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
-    ctx.fillText('© SQUARE ENIX', width - Math.max(2, Math.round(width * 0.002)), footerTop + footerHeight * 0.965, availableWidth);
+    if (showCopyright.checked) {
+      ctx.fillStyle = '#8e9392';
+      ctx.textAlign = 'right';
+      ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.07))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
+      ctx.fillText('© SQUARE ENIX', width - Math.max(2, Math.round(width * 0.002)), footerTop + footerHeight * 0.965, availableWidth);
+    }
   }
 
   function downloadFrame() {
@@ -475,6 +478,7 @@
     });
   });
   byId('download-image').addEventListener('click', downloadFrame);
+  showCopyright.addEventListener('change', renderFrame);
   Object.values(fields).forEach((field) => field.addEventListener('input', () => {
     if (field === fields.signatureSize) {
       updateSignatureSizeLabel();
