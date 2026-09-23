@@ -1,23 +1,29 @@
-# 光之相紙 — FFXIV 截圖加框
+# 光之相紙｜FFXIV 截圖加框
 
-A small static page that adds a white camera-style information footer to an FFXIV screenshot and exports a PNG at the screenshot's original width.
+這是一個靜態網頁，可在《FINAL FANTASY XIV》截圖下方加入白色攝影資訊底框，並以原圖寬度輸出 PNG。
 
-## Use
+## 使用方式
 
-Open `index.html` in a modern browser, choose or drop a PNG, JPEG, or WebP screenshot, fill in the aperture, focal length, optional shutter speed and ISO, date and signature, then download the framed PNG. Empty optional fields are omitted from the exported footer. Each camera setting has its own **使用預設** button: aperture f/2.8, shutter 1/150s, focal length 77mm, and ISO 640.
+開啟[線上網站](https://ryan4559.github.io/ffxiv-ss-frame/)，或直接用瀏覽器開啟 `index.html`。選擇或拖曳 PNG、JPG／JPEG、WebP 圖片後，填寫日期、光圈、焦距與自訂文字，即可預覽並下載圖片。快門與 ISO 為選填；未填的快門與 ISO 不會顯示在底框中。
 
-The page reads embedded date metadata when available. FFXIV screenshots often do not contain this information; in that case, it automatically uses the file's last-modified time. You can edit the date or press **帶入檔案修改時間** to restore it. That time may differ from when the screenshot was taken.
+光圈、快門、焦距及 ISO 各有獨立的「使用預設」按鈕，預設值分別為 f/2.8、1/150 秒、77 mm 與 ISO 640。
 
-Images are decoded, previewed and exported in the browser. The page does not upload images or depend on a server-side image processor.
+自訂文字顯示在底框右側、拍攝參數下方，也就是參考照片中經緯度的位置。文字大小可在預設值的 60%～160% 之間調整，每格為 5%；較長的文字會換行，必要時自動縮小以放入底框。
 
-The header links to the project repository and has a light/dark theme switch. The selected theme is saved in the browser when local storage is available.
+## 日期與隱私
 
-The custom text appears as the large second line beneath the camera settings, in the position occupied by coordinates in the reference frame. Its size is adjustable from 60% to 160% of the image-based default, in 5% increments. Longer text wraps and may shrink to fit within that area.
+選圖後，網頁會優先讀取圖片中的日期資訊；若無法讀取，則帶入檔案最後修改時間。檔案修改時間不一定等於截圖時間，請視需要自行修改，或按「帶入檔案修改時間」重新填入。
 
-The XIV mark in the page header and exported frame uses three separate sans-serif letterforms with equal stroke weight and even spacing. X and V share the same top and baseline, while the red I extends equally above and below them. The mark has a transparent background: X and V appear black in the exported frame and light in the page's dark theme. It does not trace the Fan Festival artwork. The favicon uses the same shapes without a background.
+圖片的解碼、預覽與 PNG 輸出都在瀏覽器中完成，不會上傳到伺服器，也不需要伺服器端影像處理。
 
-The website footer identifies this as an unofficial, non-commercial fan tool and displays `© SQUARE ENIX` on its own line. Its wording was checked against the September 16, 2026 materials usage policy revisions; users should follow the version applicable to them when sharing screenshots.
+## 網頁與底框
+
+頁首提供 GitHub 連結與深色／淺色主題切換；瀏覽器允許使用本機儲存空間時，會記住選擇的主題。
+
+頁首、底框與 favicon 使用自行繪製的 XIV 字樣：X、I、V 為分開排列、等粗的無襯線字形，I 為紅色且上下略為突出。圖樣使用透明背景，底框中的 X、V 為黑色，深色主題頁首中的 X、V 為淺色。此圖樣並非描摹 Fan Festival 的圖稿。
+
+這是玩家製作的非官方、非營利工具，未獲 SQUARE ENIX 認可或贊助。網站頁尾與輸出的圖片均有 `© SQUARE ENIX` 標示。分享含有《FINAL FANTASY XIV》素材的圖片時，仍須遵守適用地區的官方素材使用規範。
 
 ## GitHub Pages
 
-The site is published at https://ryan4559.github.io/ffxiv-ss-frame/ from the root of the `main` branch. The exported image includes the attribution `© SQUARE ENIX`.
+網站由 `main` 分支根目錄發布：[https://ryan4559.github.io/ffxiv-ss-frame/](https://ryan4559.github.io/ffxiv-ss-frame/)。
