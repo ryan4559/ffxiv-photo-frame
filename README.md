@@ -1,4 +1,4 @@
-# 光之相紙
+# FFXIV SS FRAME
 
 為《FINAL FANTASY XIV》截圖加入白色攝影資訊底框，在瀏覽器中預覽並下載 PNG。
 
