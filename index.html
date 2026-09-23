@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101820">
+    <meta name="description" content="為 FINAL FANTASY XIV 冒險截圖加上白色攝影資訊框，並以 PNG 保存。圖片只在你的裝置上處理。">
+    <title>冒險留影 | FINAL FANTASY XIV</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand-lockup" href="#top" aria-label="冒險留影首頁">
+          <span class="crystal-mark" aria-hidden="true"><i></i><b></b></span>
+          <span class="brand-name">FRAME <span>OF EORZEA</span></span>
+        </a>
+        <a class="header-link" href="#how-it-works">使用方式 <span aria-hidden="true">↘</span></a>
+      </header>
+
+      <main id="top">
+        <section class="hero" aria-labelledby="page-title">
+          <p class="eyebrow"><span class="eyebrow-line"></span> MEMORIES, IN LIGHT</p>
+          <h1 id="page-title">把冒險，留在<span>影格裡。</span></h1>
+          <p class="hero-copy">為你的艾歐澤亞風景加上一道攝影底框。挑選截圖、填寫拍攝資訊，完成後即可保存分享。</p>
+        </section>
+
+        <section class="studio" aria-label="截圖資訊框編輯器">
+          <div class="settings-column">
+            <div class="section-heading">
+              <span class="section-index">01</span>
+              <div>
+                <h2>準備你的影格</h2>
+                <p>選擇截圖，再填寫想留在底框上的資訊。</p>
+              </div>
+            </div>
+
+            <label class="dropzone" id="dropzone" for="image-file">
+              <input id="image-file" type="file" accept="image/png,image/jpeg,image/webp">
+              <span class="upload-symbol" aria-hidden="true">
+                <svg viewBox="0 0 32 32" fill="none"><path d="M16 21V5m0 0 6.5 6.5M16 5 9.5 11.5M5 20v6.5h22V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="drop-title">拖曳截圖到這裡，或<span>選擇圖片</span></span>
+              <span class="drop-hint">支援 PNG、JPG、WebP</span>
+            </label>
+
+            <div class="file-summary" id="file-summary" hidden>
+              <span class="file-type" aria-hidden="true">IMG</span>
+              <span class="file-details"><strong id="file-name">截圖</strong><small id="file-size">—</small></span>
+              <button class="text-button" id="replace-image" type="button">更換</button>
+            </div>
+
+            <p class="privacy-note"><span aria-hidden="true">◈</span> 圖片只會在你的瀏覽器處理，不會上傳。</p>
+
+            <div class="form-divider"><span>影格資訊</span><span class="form-divider-line"></span></div>
+
+            <div class="field-block date-block">
+              <div class="field-title-row">
+                <label for="capture-time">日期與時間</label>
+                <button class="small-button" id="use-file-date" type="button" disabled>使用檔案日期</button>
+              </div>
+              <input class="text-input" id="capture-time" type="text" inputmode="text" placeholder="YYYY.MM.DD HH:mm:ss" autocomplete="off">
+              <p class="field-hint" id="date-hint" aria-live="polite">若圖片含有 EXIF 拍攝日期，選取後會自動帶入。</p>
+            </div>
+
+            <div class="field-grid">
+              <div class="field-block">
+                <label for="aperture">光圈</label>
+                <div class="input-with-unit"><span aria-hidden="true">f/</span><input id="aperture" type="text" inputmode="decimal" placeholder="2.8" autocomplete="off"></div>
+              </div>
+              <div class="field-block">
+                <label for="shutter">快門</label>
+                <div class="input-with-unit"><input id="shutter" type="text" inputmode="text" placeholder="1/150" autocomplete="off"><span aria-hidden="true">s</span></div>
+              </div>
+              <div class="field-block">
+                <label for="focal-length">焦距</label>
+                <div class="input-with-unit"><input id="focal-length" type="text" inputmode="decimal" placeholder="77" autocomplete="off"><span aria-hidden="true">mm</span></div>
+              </div>
+              <div class="field-block">
+                <label for="iso">ISO <span class="optional-label">選填</span></label>
+                <div class="input-with-unit"><input id="iso" type="text" inputmode="numeric" placeholder="640" autocomplete="off"><span aria-hidden="true">ISO</span></div>
+              </div>
+            </div>
+
+            <div class="field-block signature-block">
+              <label for="signature">署名</label>
+              <input class="text-input" id="signature" type="text" maxlength="48" placeholder="留下你的名字或角色名" autocomplete="off">
+              <p class="field-hint">署名會顯示在白色底框右下方。</p>
+            </div>
+
+            <div class="save-row">
+              <button class="save-button" id="download-image" type="button" disabled>
+                <span>下載完成影格</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.75v9.5m0 0 3.75-3.75M10 12.25 6.25 8.5M3.5 13.5v3h13v-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <p class="export-note" id="export-note" aria-live="polite">輸出為 PNG，保留截圖原始尺寸。</p>
+            </div>
+          </div>
+
+          <div class="preview-column">
+            <div class="section-heading preview-heading">
+              <span class="section-index">02</span>
+              <div>
+                <h2>預覽完成影格</h2>
+                <p id="preview-dimensions">選取圖片後，這裡會顯示即時預覽。</p>
+              </div>
+              <span class="live-indicator"><i></i> LIVE PREVIEW</span>
+            </div>
+
+            <div class="preview-stage" id="preview-stage">
+              <div class="empty-preview" id="empty-preview">
+                <span class="empty-orbit" aria-hidden="true"><i></i><b></b></span>
+                <p>每一段旅程，都值得留存。</p>
+                <span>先選擇一張冒險截圖</span>
+              </div>
+              <canvas id="preview-canvas" hidden aria-label="加入白色資訊框後的圖片預覽"></canvas>
+            </div>
+            <div class="preview-caption">
+              <span><i class="caption-dot"></i> 圖片預覽</span>
+              <span id="preview-file-caption">等待選取圖片</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="how-it-works" id="how-it-works">
+          <span class="how-index">簡單三步</span>
+          <p><strong>選擇截圖</strong><span aria-hidden="true">→</span><strong>填寫拍攝資訊與署名</strong><span aria-hidden="true">→</span><strong>下載你的影格</strong></p>
+          <span class="offline-note">不需要帳號 · 不會上傳圖片</span>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span>FRAME OF EORZEA</span>
+        <span>FINAL FANTASY XIV © SQUARE ENIX</span>
+      </footer>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <noscript><p class="noscript">請開啟 JavaScript，才能編輯與下載影格。</p></noscript>
+  </body>
+</html>
