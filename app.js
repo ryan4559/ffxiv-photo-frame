@@ -6,6 +6,7 @@
   const fileInput = byId('image-file');
   const dropzone = byId('dropzone');
   const previewStage = byId('preview-stage');
+  const previewZoom = byId('preview-zoom');
   const showCopyright = byId('show-copyright');
   const canvas = byId('preview-canvas');
   const ctx = canvas.getContext('2d', { alpha: false });
@@ -267,6 +268,9 @@
       byId('file-size').textContent = `${image.naturalWidth} × ${image.naturalHeight} · ${fileSize(file.size)}`;
       byId('download-image').disabled = false;
       byId('use-file-date').disabled = false;
+      previewZoom.value = '100';
+      previewZoom.disabled = false;
+      byId('preview-zoom-value').textContent = '100%';
       renderFrame();
       readFileDate(file, token, dateVersionAtSelection);
     };
@@ -321,15 +325,18 @@
     if (!image) return;
     const column = previewStage.parentElement;
     const columnStyle = getComputedStyle(column);
-    const availableWidth = column.clientWidth - parseFloat(columnStyle.paddingLeft) - parseFloat(columnStyle.paddingRight) - 2;
+    const availableWidth = Math.max(1, Math.floor(column.clientWidth - parseFloat(columnStyle.paddingLeft) - parseFloat(columnStyle.paddingRight) - 2));
     const availableHeight = Math.min(920, Math.max(240, window.innerHeight - 160));
-    const displayWidth = Math.max(1, Math.floor(Math.min(
+    const fittedWidth = Math.max(1, Math.floor(Math.min(
       canvas.width,
       availableWidth,
       canvas.width * availableHeight / canvas.height,
     )));
+    const displayWidth = Math.max(1, Math.round(fittedWidth * Number(previewZoom.value) / 100));
+    const displayHeight = Math.ceil(canvas.height * displayWidth / canvas.width);
     canvas.style.width = `${displayWidth}px`;
-    previewStage.style.width = `${displayWidth + 2}px`;
+    previewStage.style.width = `${Math.min(availableWidth, displayWidth) + 2}px`;
+    previewStage.style.height = `${Math.min(availableHeight, displayHeight) + 2}px`;
   }
 
   function renderFrame() {
@@ -495,6 +502,12 @@
   });
   byId('download-image').addEventListener('click', downloadFrame);
   showCopyright.addEventListener('change', renderFrame);
+  previewZoom.addEventListener('input', () => {
+    byId('preview-zoom-value').textContent = `${previewZoom.value}%`;
+    fitPreview();
+    previewStage.scrollLeft = (previewStage.scrollWidth - previewStage.clientWidth) / 2;
+    previewStage.scrollTop = (previewStage.scrollHeight - previewStage.clientHeight) / 2;
+  });
   window.addEventListener('resize', fitPreview);
   Object.values(fields).forEach((field) => field.addEventListener('input', () => {
     if (field === fields.signatureSize) {

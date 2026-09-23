@@ -8,8 +8,8 @@
     <title>光之相紙｜FFXIV 截圖加框</title>
     <link rel="icon" type="image/svg+xml" href="xiv-favicon.svg?v=3">
     <script>try { if (localStorage.getItem('ffxiv-frame-theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (error) {}</script>
-    <link rel="stylesheet" href="styles.css?v=4">
-    <script src="app.js?v=3" defer></script>
+    <link rel="stylesheet" href="styles.css?v=5">
+    <script src="app.js?v=4" defer></script>
   </head>
   <body>
     <div class="page-shell">
@@ -140,8 +140,11 @@
 
           <div class="preview-column">
             <div class="section-heading preview-heading">
-              <div>
-                <h2>預覽</h2>
+              <h2>預覽</h2>
+              <div class="preview-zoom">
+                <label for="preview-zoom">縮放</label>
+                <input id="preview-zoom" type="range" min="50" max="200" step="10" value="100" disabled>
+                <output id="preview-zoom-value" for="preview-zoom">100%</output>
               </div>
             </div>
 
