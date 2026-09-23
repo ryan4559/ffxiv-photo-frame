@@ -324,29 +324,21 @@
   function fitPreview() {
     if (!image) return;
     const column = previewStage.parentElement;
-    const studio = column.parentElement;
     const columnStyle = getComputedStyle(column);
     const padding = parseFloat(columnStyle.paddingLeft) + parseFloat(columnStyle.paddingRight);
-    const stacked = window.matchMedia('(max-width: 980px)').matches;
-    const regularColumnWidth = stacked
-      ? studio.clientWidth
-      : studio.clientWidth - studio.querySelector('.settings-column').getBoundingClientRect().width - parseFloat(getComputedStyle(studio).columnGap);
-    const regularWidth = Math.max(1, Math.floor(regularColumnWidth - padding - 4));
-    const fullWidth = Math.max(1, Math.floor(studio.clientWidth - padding - 4));
+    const availableWidth = Math.max(1, Math.floor(column.clientWidth - padding - 2));
     const availableHeight = Math.min(920, Math.max(240, window.innerHeight - 160));
     const fittedWidth = Math.max(1, Math.floor(Math.min(
       canvas.width,
-      regularWidth,
+      availableWidth,
       canvas.width * availableHeight / canvas.height,
     )));
-    const maxZoom = Math.max(100, Math.min(200, Math.floor(fullWidth / fittedWidth * 10) * 10));
+    const maxZoom = Math.max(100, Math.min(200, Math.floor(availableWidth / fittedWidth * 10) * 10));
     previewZoom.max = String(maxZoom);
     if (Number(previewZoom.value) > maxZoom) previewZoom.value = String(maxZoom);
     const zoom = Number(previewZoom.value);
     byId('preview-zoom-value').textContent = `${zoom}%`;
     const requestedWidth = Math.max(1, Math.round(fittedWidth * zoom / 100));
-    studio.classList.toggle('preview-expanded', !stacked && requestedWidth > regularWidth);
-    const availableWidth = Math.max(1, Math.floor(column.clientWidth - padding - 2));
     const displayWidth = Math.min(requestedWidth, availableWidth);
     canvas.style.width = `${displayWidth}px`;
     previewStage.style.width = `${displayWidth + 2}px`;
