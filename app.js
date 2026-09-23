@@ -468,8 +468,8 @@
     if (showCopyright.checked) {
       ctx.fillStyle = '#8e9392';
       ctx.textAlign = 'right';
-      ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.07))}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
-      ctx.fillText('© SQUARE ENIX', width - Math.max(2, Math.round(width * 0.002)), footerTop + footerHeight * 0.965, availableWidth);
+      ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.07)) * 2}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
+      ctx.fillText('© SQUARE ENIX', width - Math.max(2, Math.round(width * 0.002)), footerTop + footerHeight * 0.99, availableWidth);
     }
     fitPreview();
   }
