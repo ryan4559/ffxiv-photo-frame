@@ -24,6 +24,12 @@
 
 這是玩家製作的非官方、非營利工具，未獲 SQUARE ENIX 認可或贊助。網站頁尾與輸出的圖片均有 `© SQUARE ENIX` 標示。分享含有《FINAL FANTASY XIV》素材的圖片時，仍須遵守適用地區的官方素材使用規範。
 
+## 授權
+
+本專案由作者自行撰寫的 HTML、CSS、JavaScript 程式碼及說明文件採用 [MIT 授權](LICENSE)，著作權標示為 `Copyright (c) 2026 ryan4559`。
+
+MIT 授權**不包含** `xiv-favicon.svg`、`index.html` 中自行繪製的 XIV 圖樣、FINAL FANTASY XIV 與 SQUARE ENIX 的名稱或商標、任何遊戲素材，以及使用者匯入的截圖。這些內容各依其權利歸屬及適用規範使用；MIT 授權不代表取得 SQUARE ENIX 的授權或認可。
+
 ## GitHub Pages
 
 網站由 `main` 分支根目錄發布：[https://ryan4559.github.io/ffxiv-ss-frame/](https://ryan4559.github.io/ffxiv-ss-frame/)。
