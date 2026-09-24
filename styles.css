@@ -6,7 +6,7 @@
   --panel-edge: rgba(220, 233, 237, .11);
   --text: #eef2ef;
   --muted: #98a7a9;
-  --faint: #657579;
+  --faint: #9aaba9;
   --mint: #b0dbd0;
   --gold: #d1ba89;
   --line: rgba(218, 231, 232, .12);
@@ -98,7 +98,7 @@ h2, p { margin-top: 0; }
 .small-button:disabled { color: #5e6b6e; cursor: default; }
 .text-input, .input-with-unit { width: 100%; height: 46px; border: 1px solid rgba(222, 234, 232, .13); border-radius: 6px; background: rgba(5, 12, 16, .34); color: var(--text); font-size: 15px; }
 .text-input { padding: 0 13px; }
-.text-input::placeholder, .input-with-unit input::placeholder { color: #687779; opacity: 1; }
+.text-input::placeholder, .input-with-unit input::placeholder { color: #9aaba9; opacity: 1; }
 .text-input:focus, .input-with-unit:focus-within { border-color: rgba(176, 219, 208, .7); outline: none; box-shadow: 0 0 0 2px rgba(176, 219, 208, .1); }
 .input-with-unit { display: flex; align-items: center; gap: 8px; padding: 0 11px; color: #889a9b; font-family: var(--mono); font-size: 12px; }
 .input-with-unit input { width: 100%; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; background: transparent; color: var(--text); font-family: var(--mono); font-size: 15px; }
@@ -155,7 +155,7 @@ h2, p { margin-top: 0; }
   --panel-edge: rgba(27, 60, 57, .14);
   --text: #1d302e;
   --muted: #526b69;
-  --faint: #647c79;
+  --faint: #536b67;
   --mint: #286e64;
   --gold: #9d794c;
   --line: rgba(27, 60, 57, .17);
@@ -183,7 +183,7 @@ h2, p { margin-top: 0; }
 :root[data-theme="light"] .text-input,
 :root[data-theme="light"] .input-with-unit { border-color: #c9d9d4; background: #fff; }
 :root[data-theme="light"] .text-input::placeholder,
-:root[data-theme="light"] .input-with-unit input::placeholder { color: #7c918c; }
+:root[data-theme="light"] .input-with-unit input::placeholder { color: #536b67; }
 :root[data-theme="light"] .text-input:focus,
 :root[data-theme="light"] .input-with-unit:focus-within { border-color: var(--mint); box-shadow: 0 0 0 2px rgba(40, 110, 100, .11); }
 :root[data-theme="light"] .input-with-unit { color: #647c79; }

@@ -9,7 +9,7 @@
   const previewZoom = byId('preview-zoom');
   const showCopyright = byId('show-copyright');
   const canvas = byId('preview-canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
+  const previewMaxEdge = 2048;
   const fields = {
     date: byId('capture-time'),
     aperture: byId('aperture'),
@@ -207,10 +207,11 @@
           if (date) return date;
         }
         if (type === 'tEXt') {
-          const chunk = ascii(dataStart, length);
-          const split = chunk.indexOf('\0');
-          if (split >= 0 && /date|time|creation/i.test(chunk.slice(0, split))) {
-            const value = chunk.slice(split + 1).trim();
+          // PNG keywords are at most 79 bytes; only a short date prefix is needed.
+          const keyword = ascii(dataStart, Math.min(length, 80));
+          const split = keyword.indexOf('\0');
+          if (split > 0 && /date|time|creation/i.test(keyword.slice(0, split))) {
+            const value = ascii(dataStart + split + 1, Math.min(length - split - 1, 64)).trim();
             if (/^\d{4}[:.-]\d{2}[:.-]\d{2}/.test(value)) return value;
           }
         }
@@ -345,8 +346,8 @@
     previewStage.style.height = '';
   }
 
-  function renderFrame() {
-    if (!image || !ctx) return;
+  function renderFrame(targetCanvas = canvas) {
+    if (!image) return false;
     const width = image.naturalWidth;
     const photoHeight = image.naturalHeight;
     const { portrait, footerHeight, dateSize } = frameMeasurements(image);
@@ -360,8 +361,14 @@
     const mainBaseline = footerTop + footerHeight * (portrait ? 0.47 : 0.51);
     const subBaseline = footerTop + footerHeight * (portrait ? 0.73 : 0.76);
 
-    canvas.width = width;
-    canvas.height = footerBottom;
+    const previewScale = targetCanvas === canvas
+      ? Math.min(1, previewMaxEdge / Math.max(width, footerBottom))
+      : 1;
+    targetCanvas.width = Math.max(1, Math.round(width * previewScale));
+    targetCanvas.height = Math.max(1, Math.round(footerBottom * previewScale));
+    const ctx = targetCanvas.getContext('2d', { alpha: false });
+    if (!ctx) return false;
+    ctx.setTransform(targetCanvas.width / width, 0, 0, targetCanvas.height / footerBottom, 0, 0);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, footerBottom);
     ctx.drawImage(image, 0, 0, width, photoHeight);
@@ -471,27 +478,41 @@
       ctx.font = `400 ${Math.round(Math.max(11, footerHeight * 0.07)) * 2}px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif`;
       ctx.fillText('© SQUARE ENIX', width - Math.max(2, Math.round(width * 0.002)), footerTop + footerHeight * 0.99, availableWidth);
     }
-    fitPreview();
+    if (targetCanvas === canvas) fitPreview();
+    return true;
   }
 
   function downloadFrame() {
     if (!image) return;
-    renderFrame();
-    canvas.toBlob((blob) => {
+    const sourceFile = selectedFile;
+    const baseName = (sourceFile?.name || 'ffxiv-screenshot').replace(/\.[^.]+$/, '').replace(/[\/:*?"<>|]/g, '_');
+    const exportCanvas = document.createElement('canvas');
+    try {
+      if (!renderFrame(exportCanvas)) throw new Error('Canvas context unavailable');
+    } catch (error) {
+      showToast('無法產生 PNG，請改用較小的圖片再試。');
+      return;
+    }
+    const outputWidth = exportCanvas.width;
+    const outputHeight = exportCanvas.height;
+    exportCanvas.toBlob((blob) => {
+      exportCanvas.width = 0;
+      exportCanvas.height = 0;
       if (!blob) {
         showToast('無法產生 PNG，請改用較小的圖片再試。');
         return;
       }
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
-      const baseName = (selectedFile?.name || 'ffxiv-screenshot').replace(/\.[^.]+$/, '').replace(/[\/:*?"<>|]/g, '_');
       anchor.href = url;
       anchor.download = `${baseName}-frame.png`;
       document.body.append(anchor);
       anchor.click();
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1500);
-      byId('export-note').textContent = `已產生 ${canvas.width.toLocaleString()} × ${canvas.height.toLocaleString()} px 的 PNG。`;
+      if (selectedFile === sourceFile) {
+        byId('export-note').textContent = `已產生 ${outputWidth.toLocaleString()} × ${outputHeight.toLocaleString()} px 的 PNG。`;
+      }
       showToast('已開始下載圖片。');
     }, 'image/png');
   }
