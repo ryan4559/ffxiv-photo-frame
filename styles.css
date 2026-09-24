@@ -99,7 +99,9 @@ h2, p { margin-top: 0; }
 .field-block { min-width: 0; }
 .field-block label, .field-title-row label { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; color: #d4dcd8; font-size: 14px; font-weight: 550; }
 .field-title-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.field-grid .field-title-row { flex-wrap: wrap; }
+.field-grid .field-block { display: flex; flex-direction: column; }
+.field-grid .field-title-row { flex: 1; align-items: flex-start; flex-wrap: nowrap; gap: 4px; }
+.field-grid .field-title-row label { min-width: 0; flex: 1 1 auto; flex-wrap: wrap; gap: 2px 5px; line-height: 1.25; }
 .field-title-row label { margin-bottom: 8px; }
 .small-button { margin: -4px 0 4px; color: var(--muted); font-size: 12px; }
 .small-button:disabled { color: #5e6b6e; cursor: default; }
@@ -113,7 +115,7 @@ h2, p { margin-top: 0; }
 .field-hint { margin: 7px 0 0; color: var(--faint); font-size: 12px; line-height: 1.6; }
 .date-block { margin-bottom: 18px; }
 .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px 14px; }
-.field-grid .small-button { padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; white-space: nowrap; }
+.field-grid .small-button { flex: none; margin: 0 0 8px; padding: 4px 5px; border: 1px solid var(--line); border-radius: 4px; white-space: nowrap; }
 .signature-block { margin-top: 18px; }
 .signature-size-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
 .signature-size-row label { margin: 0; }
