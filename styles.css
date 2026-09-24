@@ -55,6 +55,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, .dropzone:focus-with
 .header-icon { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: rgba(255, 255, 255, .03); color: var(--text); cursor: pointer; }
 .header-icon:hover { border-color: var(--mint); color: var(--mint); }
 .header-icon svg { display: block; width: 20px; height: 20px; }
+.language-picker { position: relative; }
+.language-menu { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; min-width: 154px; padding: 6px; border: 1px solid var(--panel-edge); border-radius: 9px; background: var(--panel); box-shadow: 0 14px 32px rgba(0, 0, 0, .25); }
+.language-menu button { display: block; width: 100%; padding: 9px 12px; border: 0; border-radius: 5px; background: transparent; color: var(--text); cursor: pointer; font-size: 13px; text-align: left; white-space: nowrap; }
+.language-menu button:hover, .language-menu button:focus-visible { background: rgba(176, 219, 208, .12); color: var(--mint); }
+.language-menu button[aria-checked="true"] { color: var(--mint); font-weight: 700; }
+.language-menu button[aria-checked="true"]::after { float: right; margin-left: 12px; content: '✓'; }
 .theme-toggle .icon-moon { display: none; }
 :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
 :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
@@ -77,7 +83,7 @@ h2, p { margin-top: 0; }
 .upload-symbol { width: 36px; height: 36px; margin-bottom: 12px; color: var(--mint); }
 .upload-symbol svg { width: 100%; height: 100%; }
 .drop-title { color: #e0e8e5; font-size: 15px; }
-.drop-title span { color: var(--mint); text-decoration: underline; text-decoration-color: rgba(176, 219, 208, .45); text-underline-offset: 3px; }
+.drop-title span:last-child { color: var(--mint); text-decoration: underline; text-decoration-color: rgba(176, 219, 208, .45); text-underline-offset: 3px; }
 .drop-hint { margin-top: 8px; color: var(--faint); font-family: var(--mono); font-size: 12px; }
 .file-summary { display: flex; align-items: center; gap: 12px; min-width: 0; margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(4, 11, 15, .18); }
 .file-type { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border-radius: 6px; background: rgba(176, 219, 208, .13); color: var(--mint); font-family: var(--mono); font-size: 10px; }
@@ -92,7 +98,8 @@ h2, p { margin-top: 0; }
 .form-divider-line { height: 1px; flex: 1; background: var(--line); }
 .field-block { min-width: 0; }
 .field-block label, .field-title-row label { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; color: #d4dcd8; font-size: 14px; font-weight: 550; }
-.field-title-row { display: flex; align-items: center; justify-content: space-between; }
+.field-title-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.field-grid .field-title-row { flex-wrap: wrap; }
 .field-title-row label { margin-bottom: 8px; }
 .small-button { margin: -4px 0 4px; color: var(--muted); font-size: 12px; }
 .small-button:disabled { color: #5e6b6e; cursor: default; }
@@ -166,6 +173,9 @@ h2, p { margin-top: 0; }
 :root[data-theme="light"] .settings-column,
 :root[data-theme="light"] .preview-column { background: linear-gradient(145deg, #fff, #f8fbf9); box-shadow: 0 16px 42px rgba(20, 50, 45, .08); }
 :root[data-theme="light"] .header-icon { background: #fff; }
+:root[data-theme="light"] .language-menu { background: #fff; box-shadow: 0 14px 32px rgba(20, 50, 45, .15); }
+:root[data-theme="light"] .language-menu button:hover,
+:root[data-theme="light"] .language-menu button:focus-visible { background: #eaf4f0; }
 :root[data-theme="light"] .dropzone { border-color: #a9c8bf; background: #f7faf9; }
 :root[data-theme="light"] .dropzone:hover,
 :root[data-theme="light"] .dropzone.is-dragging { border-color: var(--mint); background: #eaf4f0; }
@@ -221,4 +231,13 @@ h2, p { margin-top: 0; }
   .section-heading p { font-size: 13px; }
   .preview-stage { min-height: 300px; }
   .save-row { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 420px) {
+  .brand-lockup { gap: 5px; }
+  .brand-name { font-size: 11px; }
+  .xiv-mark { width: 36px; height: 26px; flex-basis: 36px; }
+  .header-actions { gap: 4px; }
+  .header-icon { width: 32px; height: 32px; flex-basis: 32px; }
+  .field-grid { grid-template-columns: 1fr; }
 }
