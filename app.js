@@ -9,7 +9,8 @@
   const previewZoom = byId('preview-zoom');
   const showCopyright = byId('show-copyright');
   const canvas = byId('preview-canvas');
-  const previewMaxEdge = 2048;
+  // A 4K screenshot plus its footer fits below this limit at native resolution.
+  const previewMaxPixels = 12_000_000;
   const fields = {
     date: byId('capture-time'),
     aperture: byId('aperture'),
@@ -362,10 +363,13 @@
     const subBaseline = footerTop + footerHeight * (portrait ? 0.73 : 0.76);
 
     const previewScale = targetCanvas === canvas
-      ? Math.min(1, previewMaxEdge / Math.max(width, footerBottom))
+      ? Math.min(1, Math.sqrt(previewMaxPixels / (width * footerBottom)))
       : 1;
-    targetCanvas.width = Math.max(1, Math.round(width * previewScale));
-    targetCanvas.height = Math.max(1, Math.round(footerBottom * previewScale));
+    const outputWidth = Math.max(1, Math.round(width * previewScale));
+    const outputHeight = Math.max(1, Math.round(footerBottom * previewScale));
+    // Resizing a canvas reallocates its bitmap, so retain it across field edits.
+    if (targetCanvas.width !== outputWidth) targetCanvas.width = outputWidth;
+    if (targetCanvas.height !== outputHeight) targetCanvas.height = outputHeight;
     const ctx = targetCanvas.getContext('2d', { alpha: false });
     if (!ctx) return false;
     ctx.setTransform(targetCanvas.width / width, 0, 0, targetCanvas.height / footerBottom, 0, 0);
@@ -486,9 +490,13 @@
     if (!image) return;
     const sourceFile = selectedFile;
     const baseName = (sourceFile?.name || 'ffxiv-screenshot').replace(/\.[^.]+$/, '').replace(/[\/:*?"<>|]/g, '_');
-    const exportCanvas = document.createElement('canvas');
+    const { footerHeight } = frameMeasurements(image);
+    const fullWidth = image.naturalWidth;
+    const fullHeight = image.naturalHeight + footerHeight;
+    const previewIsFullSize = canvas.width === fullWidth && canvas.height === fullHeight;
+    const exportCanvas = previewIsFullSize ? canvas : document.createElement('canvas');
     try {
-      if (!renderFrame(exportCanvas)) throw new Error('Canvas context unavailable');
+      if (!previewIsFullSize && !renderFrame(exportCanvas)) throw new Error('Canvas context unavailable');
     } catch (error) {
       showToast('無法產生 PNG，請改用較小的圖片再試。');
       return;
@@ -496,8 +504,10 @@
     const outputWidth = exportCanvas.width;
     const outputHeight = exportCanvas.height;
     exportCanvas.toBlob((blob) => {
-      exportCanvas.width = 0;
-      exportCanvas.height = 0;
+      if (!previewIsFullSize) {
+        exportCanvas.width = 0;
+        exportCanvas.height = 0;
+      }
       if (!blob) {
         showToast('無法產生 PNG，請改用較小的圖片再試。');
         return;
